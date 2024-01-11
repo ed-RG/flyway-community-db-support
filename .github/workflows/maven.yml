@@ -29,6 +29,6 @@ jobs:
         run: mvn -B install --file pom.xml
   
       - name: Publish to GitHub Packages Apache Maven
-        run: mvn deploy
+        run: mvn -B deploy -DreleaseRepository.id=github -DreleaseRepository.name="Flyway OSS Maven Packages" -DreleaseRepository.url=https://maven.pkg.github.com/flyway/flyway
         env:
           GITHUB_TOKEN: ${{ github.token }}

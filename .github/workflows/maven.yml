@@ -13,6 +13,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout Flyway OSS
         uses: actions/checkout@v3
@@ -24,3 +27,8 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: mvn -B install --file pom.xml
+  
+      - name: Publish to GitHub Packages Apache Maven
+        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

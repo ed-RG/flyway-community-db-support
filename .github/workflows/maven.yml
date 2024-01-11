@@ -1,0 +1,37 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Deploy Flyway OSS to Github Packages
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Flyway OSS
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build with Maven
+        run: mvn -B install --file pom.xml -Pbuild-assemblies
+      - name: Smoke Test with Maven
+        run: mvn -B exec:java --file pom.xml -pl flyway-commandline "-Dexec.mainClass=org.flywaydb.commandline.Main" "-Dexec.args=-url='jdbc:h2:mem:db' info"
+      - name: Archive CLI artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: cli-artifacts
+          path: |
+            flyway-commandline/target/flyway-commandline-*-windows-x64.zip
+            flyway-commandline/target/flyway-commandline-*-macosx-x64.tar.gz
+            flyway-commandline/target/flyway-commandline-*-macosx-arm64.tar.gz
+            flyway-commandline/target/flyway-commandline-*-linux-x64.tar.gz
